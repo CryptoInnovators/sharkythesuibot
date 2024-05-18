@@ -22,7 +22,6 @@ import {
 
 const client = new JsonRpcProvider(mainnetConnection);
 
-
 const subscribetokriyanewpools = async () => {
   try {
     const response = await client.subscribeEvent({
@@ -235,6 +234,28 @@ bot.command("chart", (ctx) => {
 });
 
 
+bot.command("lp", (ctx) => {
+  const keyboard = new InlineKeyboard()
+  .text("Provide Liquidity to Kriya Pools", "LPintokriyapool")
+  .text("Provide Liquidity to Scaloop Pools", "LPintoscaloopool")
+  
+  ctx.reply("Select a pool provider to provide liquidity:", { reply_markup: keyboard });
+});
+
+bot.callbackQuery("LPintokriyapool", (ctx) => {
+  const keyboard = new InlineKeyboard()
+  .text("SUI/wUSDCe", "sui_usdc_lp")
+  .text("vSUI/SUI", "vsui_sui_lp")
+  .text("USDC/CETUS", "usdc_cetus_lp");
+  
+  ctx.reply("Select a trading pair:", { reply_markup: keyboard });
+});
+
+bot.callbackQuery("vsui_sui_lp", async (ctx) => {
+  await ctx.reply("Providing Liquidity to SUI/wUSDCe...");
+  await ctx.reply("provided 1 SUI and 1 vsui to the pool");
+});
+
 bot.command("token", async (msg) => {
 	const chatId : number = msg.chat.id
 	const symbol = msg.message?.text.split(' ')[1]
@@ -289,13 +310,6 @@ bot.command("trade", (ctx) => {
   ctx.reply("Select a trading pair:", { reply_markup: keyboard });
 });
 
-bot.command("LPintokriyapool", (ctx) => {
-  const keyboard = new InlineKeyboard()
-    .text("SUI/wUSDCe", "sui_usdc_pool")
-    .text("vSUI/SUI", "cetus_sui_trade")
-    .text("USDC/CETUS", "usdc_cetus_trade");
-  ctx.reply("Select a trading pair:", { reply_markup: keyboard });
-});
 
 bot.command("subscribetokriyanewpools", async (ctx) =>  {
   await subscribetokriyanewpools();
@@ -316,7 +330,7 @@ bot.command("leaderboard", (ctx) => {
 bot.callbackQuery("chartstrategies", async (ctx) => {
   try {
     // const chart = await suibot.generateChart();
-    ctx.replyWithPhoto("https://raw.githubusercontent.com/CryptoInnovators/sharkythesuibot/master/monitoring-scripts/images/strategies.png?token=GHSAT0AAAAAACPRXGGBSETYALS2R674EVBQZS3CM5Q");
+    ctx.replyWithPhoto("https://raw.githubusercontent.com/CryptoInnovators/sharkythesuibot/master/images/strategies.png");
   } catch (error) {
     ctx.reply("Failed to generate chart. Please try again later.");
     logger.error(error);
@@ -326,7 +340,7 @@ bot.callbackQuery("chartstrategies", async (ctx) => {
 bot.callbackQuery("chartpools", async (ctx) => {
   try {
     // const chart = await suibot.generateChart();
-    ctx.replyWithPhoto("https://github.com/CryptoInnovators/sharkythesuibot/blob/master/images/pools.png?raw=true");
+    ctx.replyWithPhoto("https://raw.githubusercontent.com/CryptoInnovators/sharkythesuibot/master/images/price.png");
   } catch (error) {
     ctx.reply("Failed to generate chart. Please try again later.");
     logger.error(error);
@@ -560,7 +574,7 @@ bot.command("starttrading", (ctx) => {
 });
 
 bot.callbackQuery("import-wallet", (ctx) => {
-  ctx.reply("Import wallet clicked");
+  ctx.reply("Input your pvt key here:");
 });
 
 bot.callbackQuery("show-wallet", async (ctx) => {

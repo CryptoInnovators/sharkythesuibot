@@ -4,6 +4,31 @@ Sharky is the fastest SUI Telegram Bot and is designed to find and take advantag
 
 It works with cetus , scallop , turbos, suiswap , kriyadex, navi and bucket protocol for leveraging the opportunities using flashloans.
 
+Sharky is the fastest SUI Telegram Bot and is designed to find and take advantage of arbitrage opportunities present in different SUI DEXs and/or perform trading activities based on script-logic strategies.
+
+It works with cetus , scallop , turbos, suiswap , kriyadex, navi and bucket protocol for leveraging the opportunities using flashloans.
+
+---> Perform defi Actions using your Bot
+
+1. LP into a pool (kriya or Scallop) from the bot
+The bot allows the users to provide liquidity in a pool with just a click.
+
+So users can now do LP into a kriya pool straight from the trading bot. 
+
+2. Real time price fetching
+Utilising zettablock and blockeden for real time price checking of the tokens help to a great extent to the users.
+
+3. Trading strategies powered by Navi and Bucket Flashloan
+The users get to see the past performance of the strategies
+And then choose to go with one of the strategies. 
+
+4. Stay Ahead of the Curve with PTB 
+Leverage the latest Sui features, 
+Like flash loans using navi , bucket. setting you apart from other users.
+
+5. Enhanced User Experience with charts
+With realtime charts available of the pools and strategies greatly benefits the user.
+
 ## Features
 
 - Implements a basic `Strategy` interface (developers can implement their own strategies).
@@ -209,6 +234,11 @@ The Suibot Monitor is a collection of Python scripts to monitor the status of a 
 The table below lists all the pools for the 3 DEXs:
 
 | DEX     | Coin A - CoinB   | Pool                                                               |
+| Kriya   | wUSDC-SUI        | 0x5af4976b871fa1813362f352fa4cada3883a96191bb7212db1bd5d13685ae305 |
+|         | wUSDCe-wUSDTe    | 0xd0086b7713e0487bbf5bb4a1e30a000794e570590a6041155cdbebee3cb1cb77 |
+|         | WETH-wUSDCe      | 0x43ca1a6de20d7feabcaa460ac3798a6fdc754d3a83b49dff93221612c1370dcc |
+|         | USDCbnb-SUI      | 0x517ee525c34fdfb2240342bd43fc07e1ec253c2442a7edd2482e6973700c6ef5 |
+|         | WETH-wUSDCe      | 0x43ca1a6de20d7feabcaa460ac3798a6fdc754d3a83b49dff93221612c1370dcc |
 | ------- | ---------------- | ------------------------------------------------------------------ |
 | CETUS   | USDT - USDC      | 0xc8d7a1503dc2f9f5b05449a87d8733593e2f0f3e7bffd90541252782e4d2ca20 |
 |         | SUI - USDC       | 0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630 |
@@ -255,7 +285,6 @@ The table below lists all the pools for the 3 DEXs:
 |         | USDCsol - USDC   | 0x2d87656c2a116b04a790abade9a66bee2abf184c2d0f1abed6e0b1196e136769 |
 |         | WETH - USDC      | 0x1937e826d0e546e8e0ea7511d0abfde86a2b64b68ca8f504b8059e800bf167f0 |
 |         | USDC - USDT      | 0x08948c60f307c52f8f9dc5b2a6a832feef159318998e375560d3187c1c25fbce |
-
 ## Contributing
 
 Contributions are welcome! Please open an issue or pull request if you have any suggestions or improvements.

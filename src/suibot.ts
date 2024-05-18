@@ -194,7 +194,7 @@ export class Suibot {
 
   /** Generate a chart for the trading data */
   async generateChart(): Promise<Buffer> {
-    // todo at last-  replace with actual chart generation logic
+    // todo
     const chart = Buffer.from("Generated Chart Image");
     return chart;
   }

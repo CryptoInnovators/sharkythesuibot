@@ -3,7 +3,7 @@
 
 import json
 
-# Load all data from the output of a Capybot. Each line is a log message in JSON format.
+# Load all data from the output of a sharkythesuibot. Each line is a log message in JSON format.
 def load_data(file):
     prices = {}
     strategies = {}
@@ -34,7 +34,7 @@ def load_data(file):
                         prices[source]['price'].append(price)
                         prices[source]['time'].append(data['time'] / 1000)
 
-                    # When starting, Capybot outputs all used strategies. But note that this is only done once.
+                    # When starting, sharkythesuibot outputs all used strategies. But note that this is only done once.
                     case "strategies":
                         for strategy in data['strategies']:
                             strategies[strategy] = {};
