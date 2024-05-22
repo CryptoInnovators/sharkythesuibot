@@ -18,9 +18,14 @@ import { CetusParams } from "../dexsParams";
 import { Pool, PreswapResult } from "../pool";
 import { mainnet } from "./mainnet_config";
 import {logger} from "../../logger";
+import { testnet } from "./testnet_config";
 
 function buildSdkOptions(): SdkOptions {
   return mainnet;
+}
+
+function buildtestnetSdkOptions(): SdkOptions {
+  return testnet;
 }
 
 export class CetusPool extends Pool<CetusParams> {
