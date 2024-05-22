@@ -15,10 +15,15 @@ import { TurbosPool } from "./dexs/turbos/turbos";
 import { logger } from "./logger";
 import { Strategy } from "./strategies/strategy";
 
+import { Api, Bot } from "grammy";
+
+
 /**
- * A simple trading bot which subscribes to a number of trading pools across different DEXs. The bot may use multiple
+ * A telegram trading bot on sui which subscribes to a number of trading pools across different DEXs. The bot may use multiple
  * strategies to trade on these pools.
  */
+
+
 export class Suibot {
   public dataSources: Record<string, DataSource> = {};
   public pools: Record<
@@ -37,6 +42,7 @@ export class Suibot {
   }
 
   async loop(duration: number, delay: number) {
+
     let startTime = new Date().getTime();
 
     let uniqueStrategies: Record<string, any> = {};

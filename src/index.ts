@@ -10,6 +10,9 @@ import { RideTheTrend } from "./strategies/ride_the_trend";
 import { RideTheExternalTrend } from "./strategies/ride_the_external_trend";
 import 'dotenv/config';
 
+import { Bot, Context, InlineKeyboard } from "grammy";
+
+
 // Convenience map from name to address for commonly used coins
 export const coins = {
   SUI: "0x2::sui::SUI",
@@ -76,6 +79,93 @@ const cetusWBTCtoUSDC = new CetusPool(
   coins.WBTC,
   coins.USDC
 );
+
+// Setup your Telegram bot
+const botToken = process.env.TELEGRAM_BOT_TOKEN;
+
+if (!botToken) {
+  throw new Error("TELEGRAM_BOT_TOKEN environment variable is not set.");
+}
+
+const bot = new Bot(botToken);
+
+// Handle the /start command.
+bot.command("start", (ctx) => ctx.reply("Welcome! Up and running."));
+// Handle other messages.
+bot.on("message", (ctx) => ctx.reply("Got another message!"));
+
+bot.start();
+
+// Interactive Commands
+bot.command("start", (ctx) => ctx.reply("Welcome to the Suibot! Use /help to see available commands."));
+
+bot.command("help", (ctx) => {
+  ctx.reply("Here are the available commands:\n\n" +
+            "/prices - Get current prices\n" +
+            "/trade - Initiate a trade\n" +
+            "/subscribe - Subscribe to price alerts\n" +
+            "/leaderboard - View the trading leaderboard");
+});
+
+bot.command("prices", async (ctx) => {
+  let prices = await suibot.getPrices();
+  ctx.reply(`Current prices:\n\n${prices}`);
+});
+
+bot.command("trade", (ctx) => {
+  const keyboard = new InlineKeyboard()
+    .button("SUI/USDC", "sui_usdc_trade")
+    .button("CETUS/SUI", "cetus_sui_trade")
+    .button("USDC/CETUS", "usdc_cetus_trade");
+  ctx.reply("Select a trading pair:", { reply_markup: keyboard });
+});
+
+// Notifications and Alerts
+bot.on("message", (ctx) => {
+  if (ctx.message?.text?.startsWith("/subscribe")) {
+    const [_, pair, threshold] = ctx.message.text.split(" ");
+    suibot.subscribeToAlerts(pair, parseFloat(threshold));
+    ctx.reply(`Subscribed to price alerts for ${pair} with threshold ${threshold}.`);
+  }
+});
+
+suibot.onAlert((pair, price) => {
+  bot.api.sendMessage(process.env.CHAT_ID!, `Alert: ${pair} price reached ${price}!`);
+});
+
+// User Engagement
+bot.command("leaderboard", (ctx) => {
+  const leaderboard = suibot.getLeaderboard();
+  let message = "Trading Leaderboard:\n\n";
+  for (const [user, profit] of leaderboard) {
+    message += `${user}: ${profit} SUI\n`;
+  }
+  ctx.reply(message);
+});
+
+suibot.onTrade((user, profit) => {
+  suibot.updateLeaderboard(user, profit);
+});
+
+// Data Visualization
+bot.command("chart", async (ctx) => {
+  const chart = await suibot.generateChart();
+  ctx.replyWithPhoto({ source: chart });
+});
+
+// Community Interaction
+bot.on("message", (ctx) => {
+  if (ctx.message?.text?.startsWith("/discuss")) {
+    const [_, topic] = ctx.message.text.split(" ");
+    suibot.createDiscussionThread(topic);
+    ctx.reply(`Started a new discussion thread: ${topic}`);
+  }
+});
+
+
+// Start the bot
+bot.start();
+
 
 suibot.addPool(cetusUSDCtoSUI);
 suibot.addPool(cetusCETUStoSUI);
@@ -189,5 +279,5 @@ suibot.addStrategy(
   )
 );
 
-// Start the bot
+// Start the bot 1hr loop
 suibot.loop(3.6e6, 1000);
