@@ -15,14 +15,10 @@ import { TurbosPool } from "./dexs/turbos/turbos";
 import { logger } from "./logger";
 import { Strategy } from "./strategies/strategy";
 
-import { Api, Bot } from "grammy";
-
-
 /**
  * A telegram trading bot on sui which subscribes to a number of trading pools across different DEXs. The bot may use multiple
  * strategies to trade on these pools.
  */
-
 
 export class Suibot {
   public dataSources: Record<string, DataSource> = {};
@@ -34,6 +30,9 @@ export class Suibot {
   private keypair: Keypair;
   private provider: JsonRpcProvider;
   private signer: RawSigner;
+  private priceAlerts: Record<string, number> = {};
+  private leaderboard: Map<string, number> = new Map();
+  private discussions: Map<string, string[]> = new Map(); // topic -> array of messages
 
   constructor(keypair: Keypair) {
     this.keypair = keypair;
@@ -42,7 +41,6 @@ export class Suibot {
   }
 
   async loop(duration: number, delay: number) {
-
     let startTime = new Date().getTime();
 
     let uniqueStrategies: Record<string, any> = {};
@@ -170,5 +168,46 @@ export class Suibot {
     }
     this.pools[pool.uri] = pool;
     this.addDataSource(pool);
+  }
+
+  /** Get current prices of all data sources */
+  async getPrices(): Promise<string> {
+    let prices = [];
+    for (const uri in this.dataSources) {
+      let dataSource = this.dataSources[uri];
+      let data = await dataSource.getData();
+      prices.push(`${dataSource.uri}: ${data}`);
+    }
+    return prices.join('\n');
+  }
+
+  /** Subscribe to price alerts for a specific trading pair with a given threshold */
+  subscribeToAlerts(pair: string, threshold: number) {
+    this.priceAlerts[pair] = threshold;
+    logger.info(`Subscribed to price alerts for ${pair} with threshold ${threshold}`);
+  }
+
+  /** Get the trading leaderboard */
+  getLeaderboard(): Map<string, number> {
+    return this.leaderboard;
+  }
+
+  /** Generate a chart for the trading data */
+  async generateChart(): Promise<Buffer> {
+    // todo at last-  replace with actual chart generation logic
+    const chart = Buffer.from("Generated Chart Image");
+    return chart;
+  }
+
+  createDiscussion(topic: string) {
+    if (!this.discussions.has(topic)) {
+      this.discussions.set(topic, []);
+      logger.info(`Discussion on ${topic} started.`);
+    }
+  }
+
+  async executeTrade(base: string, quote: string) {
+    // todo - replace with actual trade execution logic
+    logger.info(`Trade ${base}/${quote} executed.`);
   }
 }
