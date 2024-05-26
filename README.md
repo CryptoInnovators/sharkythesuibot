@@ -1,6 +1,8 @@
 # SharkytheSUIBot
 
-Sharky is the fastest SUI Telegram Bot and is designed to find and take advantage of arbitrage opportunities present in different SUI DEXs and/or perform trading activities based on script-logic strategies. Since it is still in BETA version, the agents might not be profitable and are mainly open-sourced as a reference implementation that could be reused to implement custom strategies.
+Sharky is the fastest SUI Telegram Bot and is designed to find and take advantage of arbitrage opportunities present in different SUI DEXs and/or perform trading activities based on script-logic strategies.
+
+It works with cetus , scallop , turbos, suiswap , kriyadex, navi and bucket protocol for leveraging the opportunities using flashloans.
 
 ## Features
 
