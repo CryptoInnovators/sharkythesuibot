@@ -202,8 +202,6 @@ The Suibot Monitor is a collection of Python scripts to monitor the status of a 
 
 <img src="./images/pools.png" alt="pools">
 
-Installation instructions are available on the [Suibot Monitor repository](https://github.com/MystenLabs/Suibot-monitor).
-
 ## Pools
 
 The table below lists all the pools for the 3 DEXs:
