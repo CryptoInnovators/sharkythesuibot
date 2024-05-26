@@ -10,6 +10,7 @@ import { RideTheExternalTrend } from "./strategies/ride_the_external_trend";
 import 'dotenv/config';
 import { Bot, Context, InlineKeyboard } from "grammy";
 import { logger } from "./logger";
+import axios from "axios";
 
 // Convenience map from name to address for commonly used coins
 export const coins = {
@@ -45,6 +46,7 @@ const MARKET_DIFFERENCE_LIMIT = 1.01;
 
 // Setup wallet from passphrase.
 const phrase = process.env.ADMIN_PHRASE;
+
 if (!phrase) {
   throw new Error("ADMIN_PHRASE environment variable is not set.");
 }
@@ -87,6 +89,52 @@ if (!botToken) {
 }
 
 const bot = new Bot(botToken);
+const API_ID = process.env.API_ID
+
+// Get token data from Zettablock API
+async function queryToken(symbol: string) {
+	var result
+	const options = {
+		method: 'POST',
+		url: `https://api.zettablock.com/api/v1/dataset/${API_ID}/graphql`,
+		headers: {
+			accept: 'application/json',
+			'X-API-KEY': process.env.ZETTABLOCKAPIKEY,
+			'content-type': 'application/json',
+		},
+		data: {
+			// GraphQL query starts here, token symbol is passed as a variable
+			query: `
+				{
+					records(symbol: "${symbol}", limit: 2 )
+					{
+            object_id,
+            coin_type,
+            symbol,
+            decimals,
+            total_supply_amount,
+            name
+					}
+				}
+			`,
+			// GraphQL query ends here
+		},
+	}
+
+	await axios
+		.request(options) // Send the request to Zettablock API
+		.then(function (response) {
+			// If the request is successful, return the data
+			// console.log(response.data.data.records)
+			result = response.data.data.records
+		})
+		.catch(function (error) {
+			// If the request is failed, return the error
+			console.error(error)
+		})
+	// return the result array
+	return result
+}
 
 // Handle the /start command.
 bot.command("start", (ctx) => ctx.reply("Welcome to the Suibot! Use /help to see available commands."));
@@ -106,6 +154,36 @@ bot.command("help", (ctx) => {
     "/starttrading - Start trading"
   );
 });
+
+bot.command("/\/token/", async (msg) => {
+	const chatId = msg.chat.id
+	const symbol = msg.message?.text.split(' ')[1]
+
+	// Query the token data
+	var data = await queryToken(symbol!)
+
+	// data[0] is the first element of the array, which is the latest record
+	// data.length == 0 means the token is not found
+	if (data?.length == 0) {
+		// If the token is not found, send a message
+		msg.reply(chatId, 'Token not found, Please check the symbol again')
+		return
+	} else {
+		data = data[0]
+	}
+
+	// send token data
+	const replyMsg = `
+    🪙 SUI Token Data:
+	- Name: ${data.name}
+    - Token: ${data.symbol}
+    - Supply: ${data?.total_supply_amount}
+	- Type: ${data.coin_type}
+  - Decimals: ${data.decimals}
+	- Object ID: ${data.object_id}
+`
+	msg.reply(chatId, replyMsg) // Send the message to the chat
+})
 
 
 bot.command("prices", async (ctx) => {
