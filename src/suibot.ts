@@ -4,7 +4,6 @@ import {
   RawSigner,
   TransactionBlock,
   mainnetConnection,
-  // @ts-ignore
 } from "@mysten/sui.js";
 import { setTimeout } from "timers/promises";
 import { DataSource } from "./data_sources/data_source";

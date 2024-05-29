@@ -1,6 +1,6 @@
 # SharkytheSUIBot
 
-This repository contains simple DeFi bots in Typescript, which are designed to find and take advantage of arbitrage opportunities in different SUI DEXs and/or perform trading activities based on script-logic strategies. Since it is still in BETA version, the agents might not be profitable and are mainly open-sourced as a reference implementation that could be reused to implement custom strategies.
+Sharky is the fastest SUI Telegram Bot and is designed to find and take advantage of arbitrage opportunities present in different SUI DEXs and/or perform trading activities based on script-logic strategies. Since it is still in BETA version, the agents might not be profitable and are mainly open-sourced as a reference implementation that could be reused to implement custom strategies.
 
 ## Features
 
@@ -16,10 +16,11 @@ API Reference - https://github.com/yagop/node-telegram-bot-api/blob/master/doc/a
 
 KriyaDexPackageID - https://docs.google.com/document/d/1kONj3lNyuipmdm_bIhy0mzpcm5JWzlB9R2gLw4tphGQ/edit
 
+Subscribes to the new pools when created on Kriya.
 
 ## Overview
 
-In Sui Trading Bot, **strategies** subscribe to relevant **data sources** and create **trade orders** based on the information they get. Every second, Sui Trading Bot requests new data points from each data source. When it receives a new data point, Sui Trading Bot sends it to subscribing strategies which return trade orders to Sui Trading Bot. Sui Trading Bot submits transactions to the relevant swap pools modules to execute these trade orders. If a strategy returns multiple trade orders, Sui Trading Bot submits them as a single transaction.
+In SharkyTheSuiBot, **strategies** subscribe to relevant **data sources** and create **trade orders** based on the information they get. Every second, SharkyTheSuiBot requests new data points from each data source. When it receives a new data point, SharkyTheSuiBot sends it to subscribing strategies which return trade orders to SharkyTheSuiBot. SharkyTheSuiBot submits transactions to the relevant swap pools modules to execute these trade orders. If a strategy returns multiple trade orders, SharkyTheSuiBot submits them as a single transaction.
 
 ```mermaid
 sequenceDiagram
@@ -40,7 +41,7 @@ sequenceDiagram
 
 ## Strategies
 
-Sui Trading Bot supports the following three trading strategies:
+SharkyTheSuiBot supports the following three trading strategies:
 
 - `Arbitrage`: This strategy looks for [arbitrage opportunities](https://en.wikipedia.org/wiki/Triangular_arbitrage) in chains of two or more swap pools across different DEXs. It computes the product of the prices along the chain of swap pools, say SUI -> USDC -> CETUS -> SUI, and if the product is different from 1 it means there is an arbitrage opportunity.
 - `RideTheTrend`: This strategy looks for [trend following](https://en.wikipedia.org/wiki/Trend_following) opportunities in a single swap pool by comparing a short moving average with a longer moving average to get an indication whether the price is going up or down.
@@ -50,13 +51,16 @@ Strategies are located in the `src/strategies` folder, and each strategy extends
 `evaluate` method to be implemented. The `evaluate` method is called every second with the latest data point from the
 data sources and should return a (potentially empty) array of trade orders.
 
-To add other strategies, you can implement them as described above and add it to Sui Trading Bot by calling `Suibot.addStrategy` in `src/index.ts`.
+To add other strategies, you can implement them as described above and add it to SharkyTheSuiBot by calling `Suibot.addStrategy` in `src/index.ts`.
 
 ## Data sources
 
-Sui Trading Bot can leverage two different types of data sources: Swap pools and external sources. Sui Trading Bot can execute trades via swap pools, and swap pools provide the current token price in the pool. External data sources can provide additional data that could be useful inputs to trading strategies.
+Sharky Trading Bot can leverage two different types of data sources: Swap pools and external sources. SharkyTheSuiBot can execute trades via swap pools, and swap pools provide the current token price in the pool. External data sources can provide additional data that could be useful inputs to trading strategies.
 
-In this release, Sui Trading Bot supports swap pools from [Cetus](https://www.cetus.zone/), [Turbos](https://turbos.finance/) and
+Currently, Sharky Trading Bot supports swap pools from 
+[Cetus](https://www.cetus.zone/), 
+[Turbos](https://turbos.finance/),
+[] and
 [Suiswap](https://suiswap.app/app/), and uses Binance (via [CCTX](https://github.com/ccxt/ccxt)) as an external data source for the relative prices of some token pairs.
 
 ## Installation

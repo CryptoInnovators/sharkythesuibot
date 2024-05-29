@@ -11,6 +11,39 @@ import 'dotenv/config';
 import { Bot, Context, InlineKeyboard } from "grammy";
 import { logger } from "./logger";
 import axios from "axios";
+import {
+  JsonRpcProvider,
+  Keypair,
+  RawSigner,
+  TransactionBlock,
+  mainnetConnection,
+} from "@mysten/sui.js";
+
+// Package is on Testnet.
+const client = new JsonRpcProvider(mainnetConnection);
+
+
+const subscribetokriyanewpools = async () => {
+  try {
+    const response = await client.subscribeEvent({
+      filter: {
+        Package: '0xa0eba10b173538c8fecca1dff298e488402cc9ff374f8a12ca7758eebe830b66',
+        MoveModule: {
+          package: '0xa0eba10b173538c8fecca1dff298e488402cc9ff374f8a12ca7758eebe830b66',
+          module: 'spot_dex'
+        },
+        MoveEventType: 'create_pool_'
+      },
+      onMessage: (event) => {
+        console.log(event);
+      }
+    });
+    console.log(response);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 
 // Convenience map from name to address for commonly used coins
 export const coins = {
@@ -47,10 +80,15 @@ const MARKET_DIFFERENCE_LIMIT = 1.01;
 // Setup wallet from passphrase.
 const phrase = process.env.ADMIN_PHRASE;
 
+
 if (!phrase) {
   throw new Error("ADMIN_PHRASE environment variable is not set.");
 }
 export const keypair = Ed25519Keypair.deriveKeypair(phrase);
+
+const publickey = keypair.getPublicKey().toSuiAddress();
+
+
 
 let suibot = new Suibot(keypair);
 
@@ -117,7 +155,6 @@ async function queryToken(symbol: string) {
 					}
 				}
 			`,
-			// GraphQL query ends here
 		},
 	}
 
@@ -136,8 +173,39 @@ async function queryToken(symbol: string) {
 	return result
 }
 
+async function queryprice(symbol: string) {
+  var result
+  const options = {
+    method: 'POST',
+    url: `https://api.zettablock.com/api/v1/dataset/${API_ID}/graphql`,
+    headers: {
+      accept: 'application/json',
+      'X-API-KEY': process.env.ZETTABLOCKAPIKEY,
+      'content-type': 'application/json',
+    },
+    data: {
+      // GraphQL query starts here, token symbol is passed as a variable
+      query: `
+        {
+          records(symbol: "${symbol}", limit: 1 )
+          {
+            price
+          }
+        }
+      `,
+    },
+  }
+};
+
 // Handle the /start command.
-bot.command("start", (ctx) => ctx.reply("Welcome to the Suibot! Use /help to see available commands."));
+bot.command("start", (ctx) => {
+
+  const keyboard = new InlineKeyboard()
+  .text("Import Wallet", "import-wallet")
+  .text("Show My Wallet", "show-wallet")
+  
+  ctx.reply("Welcome to the Suibot! Use /help to see available commands.", { reply_markup: keyboard });
+});
 
 
 bot.command("help", (ctx) => {
@@ -151,21 +219,25 @@ bot.command("help", (ctx) => {
     "/addpool - Add a pool\n" +
     "/adddatasource - Add a data source\n" +
     "/addstrategy - Add a strategy\n" +
-    "/starttrading - Start trading"
+    "/subscribetokriyanewpools - Subscribe to new pools on kriya\n" +
+    "/starttrading - Start trading" 
   );
 });
 
-bot.command("/\/token/", async (msg) => {
-	const chatId = msg.chat.id
+bot.command("token", async (msg) => {
+	const chatId : number = msg.chat.id
 	const symbol = msg.message?.text.split(' ')[1]
 
 	// Query the token data
-	var data = await queryToken(symbol!)
+	var data : any= await queryToken(symbol!);
+  
+  console.log(data,"data")
 
 	// data[0] is the first element of the array, which is the latest record
 	// data.length == 0 means the token is not found
 	if (data?.length == 0) {
 		// If the token is not found, send a message
+    // @ts-ignore
 		msg.reply(chatId, 'Token not found, Please check the symbol again')
 		return
 	} else {
@@ -182,6 +254,7 @@ bot.command("/\/token/", async (msg) => {
   - Decimals: ${data.decimals}
 	- Object ID: ${data.object_id}
 `
+// @ts-ignore
 	msg.reply(chatId, replyMsg) // Send the message to the chat
 })
 
@@ -206,16 +279,9 @@ bot.command("trade", (ctx) => {
 });
 
 
-bot.command("subscribe", (ctx) => {
-  const messageParts = ctx.message?.text.split(" ");
-  if (messageParts?.length !== 3) {
-    ctx.reply("Usage: /subscribe <pair> <threshold>");
-    return;
-  }
-
-  const [_, pair, threshold] = messageParts;
-  suibot.subscribeToAlerts(pair, parseFloat(threshold));
-  ctx.reply(`Subscribed to price alerts for ${pair} with threshold ${threshold}.`);
+bot.command("subscribetokriyanewpools", async (ctx) =>  {
+  await subscribetokriyanewpools();
+  ctx.reply(`Whenever new pools are created on kriya you will be notified`);
 });
 
 
@@ -256,7 +322,7 @@ bot.command("discuss", (ctx) => {
 bot.command("addpool", (ctx) => {
   const messageParts = ctx.message?.text.split(" ");
   if (messageParts?.length !== 2) {
-    ctx.reply("Usage: /addpool <pool>");
+    ctx.reply("Usage: /addpool <pool> , currently supported pools : cetus_usdc_sui | cetus_cetus_sui | cetus_usdc_cetus | turbos_sui_usdc | cetus_wbtc_usdc");
     return;
   }
 
@@ -300,7 +366,7 @@ bot.command("addpool", (ctx) => {
 bot.command("adddatasource", (ctx) => {
   const messageParts = ctx.message?.text.split(" ");
   if (messageParts?.length !== 2) {
-    ctx.reply("Usage: /add data source <data source>");
+    ctx.reply("Usage: /adddata source <data source>");
     return;
   }
 
@@ -315,13 +381,30 @@ bot.command("adddatasource", (ctx) => {
   }
 });
 
+bot.command("subscribe", (ctx) => {
+  const messageParts = ctx.message?.text.split(" ");
+  if (messageParts?.length !== 3) {
+    ctx.reply("Usage: /subscribe <pair> <threshold>");
+    return;
+  }
+
+  const [_, pair, threshold] = messageParts;
+  suibot.subscribeToAlerts(pair, parseFloat(threshold));
+  ctx.reply(`Subscribed to price alerts for ${pair} with threshold ${threshold}.`);
+});
 
 bot.command("addstrategy", (ctx) => {
   const messageParts = ctx.message?.text.split(" ");
   if (messageParts?.length !== 2) {
-    ctx.reply("Usage: /add strategy <strategy>");
-    return;
+    ctx.reply("Usage: /addstrategy <strategy>");
+  return;
   }
+  // add all the pools for implementing the strategies on them
+  suibot.addPool(cetusUSDCtoSUI);
+  suibot.addPool(cetusUSDCtoCETUS);
+  suibot.addPool(turbosSUItoUSDC);
+  suibot.addPool(cetusCETUStoSUI);
+  suibot.addPool(cetusWBTCtoUSDC);
 
   const [_, strategy] = messageParts;
   switch (strategy) {
@@ -442,12 +525,25 @@ bot.command("addstrategy", (ctx) => {
 });
 
 
+
 bot.command("starttrading", (ctx) => {
+  ctx.reply("Started trading! 🚀");
   // Start the bot 1hr loop
   suibot.loop(3.6e6, 1000);
-    ctx.reply("Started trading.");
 });
 
+bot.callbackQuery("import-wallet", (ctx) => {
+  ctx.reply("Import wallet clicked");
+});
+
+bot.callbackQuery("show-wallet", async (ctx) => {
+
+  const response = await client.getBalance({owner: publickey});
+  const convert = Number(response.totalBalance) / 1000000000;
+  console.log(response);
+  ctx.reply(`Your wallet address is: ${publickey} with balance: ${convert} SUI`);
+
+});
 
 // Handle callback queries from the inline keyboard.
 bot.callbackQuery("sui_usdc_trade", async (ctx) => {
@@ -456,7 +552,7 @@ bot.callbackQuery("sui_usdc_trade", async (ctx) => {
   await executeTrade(ctx, suibot, "SUI", "USDC");
 });
 
-bot.callbackQuery("cetus_sui_trade", async (ctx) => {
+bot.callbackQuery(" ", async (ctx) => {
   await ctx.reply("Trading CETUS/SUI...");
   await ctx.answerCallbackQuery(); // Acknowledge the callback query
   await executeTrade(ctx, suibot, "CETUS", "SUI");
