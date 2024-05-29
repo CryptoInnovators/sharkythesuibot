@@ -13,6 +13,13 @@ export const suiswapConfig = {
   },
 };
 
+export const kriyadexswapConfig = {
+  contract: {
+    PackageId: "0xa0eba10b173538c8fecca1dff298e488402cc9ff374f8a12ca7758eebe830b66",
+    ModuleId: "spot_dex",
+  },
+};
+
 export const turbosConfig = {
   contract: {
     PackageId:

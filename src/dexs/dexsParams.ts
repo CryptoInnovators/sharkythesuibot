@@ -39,6 +39,20 @@ export type SuiswapParams = {
 };
 
 /**
+ * Type representing parameters for the Suiswap decentralized exchange.
+ */
+export type KriyadexswapParams = {
+  /**
+   * A boolean value indicating whether to swap from A to B or from B to A.
+   */
+  a2b: boolean;
+  /**
+   * The amount of cryptocurrency to swap.
+   */
+  amountIn: number;
+};
+
+/**
  * Type representing parameters for the Turbos decentralized exchange.
  */
 export type TurbosParams = {

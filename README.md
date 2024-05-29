@@ -14,6 +14,9 @@ This repository contains simple DeFi bots in Typescript, which are designed to f
 
 API Reference - https://github.com/yagop/node-telegram-bot-api/blob/master/doc/api.md
 
+KriyaDexPackageID - https://docs.google.com/document/d/1kONj3lNyuipmdm_bIhy0mzpcm5JWzlB9R2gLw4tphGQ/edit
+
+
 ## Overview
 
 In Sui Trading Bot, **strategies** subscribe to relevant **data sources** and create **trade orders** based on the information they get. Every second, Sui Trading Bot requests new data points from each data source. When it receives a new data point, Sui Trading Bot sends it to subscribing strategies which return trade orders to Sui Trading Bot. Sui Trading Bot submits transactions to the relevant swap pools modules to execute these trade orders. If a strategy returns multiple trade orders, Sui Trading Bot submits them as a single transaction.
