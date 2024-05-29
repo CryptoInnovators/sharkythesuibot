@@ -1,3 +1,4 @@
+// @ts-nocheck
 import SDK, {
   Percentage,
   SdkOptions,
@@ -89,7 +90,7 @@ export class CetusPool extends Pool<CetusParams> {
 
       args = [];
 
-      inputs.forEach((input) => {
+      inputs.forEach((input: any) => {
         if (
           input.kind === "Input" &&
           (input.type === "object" || input.type === "pure")

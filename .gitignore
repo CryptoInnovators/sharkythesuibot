@@ -30,6 +30,8 @@ bower_components
 .idea
 *.iml
 
+bun.lockb
+
 # OS metadata
 .DS_Store
 Thumbs.db
